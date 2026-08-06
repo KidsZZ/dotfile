@@ -39,3 +39,55 @@ function clipcopy clippaste {
 # Linux 上保留原先的使用习惯；macOS 已有原生命令时不覆盖。
 (( $+commands[pbcopy] )) || alias pbcopy='clipcopy'
 (( $+commands[pbpaste] )) || alias pbpaste='clippaste'
+
+# 将文件内容复制到系统剪贴板。
+function copyfile() {
+  emulate -L zsh
+
+  if (( $# != 1 )); then
+    print -u2 -- "用法：copyfile <文件>"
+    return 1
+  fi
+
+  local file="$1"
+  if [[ ! -f "$file" || ! -r "$file" ]]; then
+    print -u2 -- "[dotfiles] 文件不存在或不可读：$file"
+    return 1
+  fi
+
+  clipcopy "$file" || return 1
+  print -r -- "已复制文件内容：${file:a}"
+}
+
+# 不传参数时复制当前目录；传入文件或目录时复制其绝对路径。
+function copypath() {
+  emulate -L zsh
+
+  if (( $# > 1 )); then
+    print -u2 -- "用法：copypath [文件或目录]"
+    return 1
+  fi
+
+  local target="${1:-.}"
+  if [[ ! -e "$target" && ! -L "$target" ]]; then
+    print -u2 -- "[dotfiles] 路径不存在：$target"
+    return 1
+  fi
+
+  local absolute_path="${target:a}"
+  print -rn -- "$absolute_path" | clipcopy || return 1
+  print -r -- "已复制路径：$absolute_path"
+}
+
+# Ctrl-O 复制当前尚未执行的整条命令，方便粘贴到脚本、文档或聊天中。
+function copybuffer() {
+  if print -rn -- "$BUFFER" | clipcopy; then
+    zle -M "已复制当前命令"
+  else
+    zle -M "复制失败：未找到可用的剪贴板后端"
+    return 1
+  fi
+}
+
+zle -N copybuffer
+bindkey '^O' copybuffer
