@@ -11,7 +11,9 @@ chezmoi apply
 chezmoi init --apply https://github.com/KidsZZ/dotfile.git
 ```
 ## zsh
-zsh目前采用自行手搭方式，未来可采用 oh my zsh 进行一站式配置
+
+Zsh 采用自行维护的模块化框架，参考 Oh My Zsh实现。
+
 架构：
 `.zshrc` 作为顶层配置文件，配置主题以及插件开关
 `.config/zsh` 存放具体配置信息。其中：
@@ -21,3 +23,5 @@ zsh目前采用自行手搭方式，未来可采用 oh my zsh 进行一站式配
 - `local-before` 中存本地程序path信息
 - `local-after`中存敏感信息，比如api-key，不加入github跟踪
 `dot_p10k.zsh`存放p10k配置文件，并手动关闭右侧显示
+
+Powerlevel10k、zsh-autosuggestions 和 zsh-syntax-highlighting 由 `.chezmoiexternal.toml` 固定版本并安装。

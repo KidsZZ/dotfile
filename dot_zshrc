@@ -23,6 +23,9 @@ typeset -ga ZSH_PLUGINS=(
   pdf2zh
   fzf
   zoxide
+  # 输入增强插件依赖前面已经注册好的 ZLE 组件，必须保持在列表末尾。
+  autosuggestions
+  syntax-highlighting
 )
 
 # 插件路径和启动选项必须在插件加载前声明；本机差异可在这里覆盖默认值。
