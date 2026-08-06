@@ -1,0 +1,72 @@
+# 仅在交互式 Shell 中加载配置，避免脚本调用 Zsh 时产生副作用。
+[[ -o interactive ]] || return
+
+# ==============================================================================
+# Zsh 配置入口
+# ==============================================================================
+
+# 入口文件只负责声明启用项和编排加载顺序，具体功能全部放在独立模块中。
+typeset -g ZSH_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
+typeset -g ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+typeset -g ZSH_THEME="personal"
+typeset -U path PATH fpath
+typeset -ga ZSH_PLUGINS=(
+  compat
+  git
+  editor
+  eza
+  uv
+  venv
+  rust
+  nvm
+  clipboard
+  pdf2zh
+  fzf
+  zoxide
+)
+
+# 插件路径和启动选项必须在插件加载前声明；本机差异可在这里覆盖默认值。
+[[ -r "$ZSH_CONFIG_HOME/local-before.zsh" ]] && source "$ZSH_CONFIG_HOME/local-before.zsh"
+
+typeset -g ZSH_COMPLETION_DIR="${ZSH_COMPLETION_DIR:-$ZSH_CACHE_DIR/completions}"
+[[ -d "$ZSH_CACHE_DIR" ]] || mkdir -p -- "$ZSH_CACHE_DIR"
+[[ -d "$ZSH_COMPLETION_DIR" ]] || mkdir -p -- "$ZSH_COMPLETION_DIR"
+
+# 动态生成的补全文件不进入 Git，而是统一保存在可重建的缓存目录。
+fpath=("$ZSH_COMPLETION_DIR" $fpath)
+
+# 先把插件目录加入 fpath，确保核心补全模块能发现插件未来提供的补全函数。
+for _dotfiles_plugin in "${ZSH_PLUGINS[@]}"; do
+  _dotfiles_plugin_dir="$ZSH_CONFIG_HOME/plugins/$_dotfiles_plugin"
+  if [[ -d "$_dotfiles_plugin_dir" ]]; then
+    fpath=("$_dotfiles_plugin_dir" $fpath)
+  else
+    print -u2 -- "[dotfiles] 未找到 Zsh 插件：$_dotfiles_plugin"
+  fi
+done
+
+# lib 使用数字前缀确定加载顺序，新增核心能力时无需修改入口文件。
+for _dotfiles_module in "$ZSH_CONFIG_HOME"/lib/*.zsh(N); do
+  source "$_dotfiles_module"
+done
+
+# 插件必须在 ZSH_PLUGINS 中显式启用，避免目录中出现文件后被意外执行。
+for _dotfiles_plugin in "${ZSH_PLUGINS[@]}"; do
+  _dotfiles_plugin_file="$ZSH_CONFIG_HOME/plugins/$_dotfiles_plugin/$_dotfiles_plugin.plugin.zsh"
+  [[ -r "$_dotfiles_plugin_file" ]] && source "$_dotfiles_plugin_file"
+done
+
+# 主题独立于核心配置，可以只修改 ZSH_THEME 完成切换。
+_dotfiles_theme_file="$ZSH_CONFIG_HOME/themes/$ZSH_THEME.zsh-theme"
+if [[ -r "$_dotfiles_theme_file" ]]; then
+  source "$_dotfiles_theme_file"
+else
+  print -u2 -- "[dotfiles] 未找到 Zsh 主题：$ZSH_THEME"
+fi
+
+# 本机秘密、代理和最终覆盖统一写在 local-after.zsh；该文件由 .gitignore 排除。
+[[ -r "$ZSH_CONFIG_HOME/local-after.zsh" ]] && source "$ZSH_CONFIG_HOME/local-after.zsh"
+
+# 清理仅供加载器使用的临时变量，避免污染后续交互环境。
+unset _dotfiles_module _dotfiles_plugin _dotfiles_plugin_dir
+unset _dotfiles_plugin_file _dotfiles_theme_file
