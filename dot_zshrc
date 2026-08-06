@@ -8,7 +8,7 @@
 # 入口文件只负责声明启用项和编排加载顺序，具体功能全部放在独立模块中。
 typeset -g ZSH_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
 typeset -g ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
-typeset -g ZSH_THEME="personal"
+typeset -g ZSH_THEME="powerlevel10k"
 typeset -U path PATH fpath
 typeset -ga ZSH_PLUGINS=(
   compat
