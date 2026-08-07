@@ -1,0 +1,2 @@
+- 忽略文件: 编写时需检查`.chezmoiignore`与`.gitignore`并同步更新
+- 备份脚本: 编写时需检查`scripts`文件夹中的`restore-dotfiles.zsh`与`backup-dotfiles.zsh`并同步更新
