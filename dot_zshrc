@@ -1,6 +1,11 @@
 # 仅在交互式 Shell 中加载配置，避免脚本调用 Zsh 时产生副作用。
 [[ -o interactive ]] || return
 
+# P10k 缓存的提示符；必须置顶
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 # ==============================================================================
 # Zsh 配置入口
 # ==============================================================================
