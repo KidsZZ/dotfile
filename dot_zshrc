@@ -29,7 +29,7 @@ typeset -ga ZSH_PLUGINS=(
   fzf
   zoxide
   # 输入增强插件依赖前面已经注册好的 ZLE 组件，必须保持在列表末尾。
-  autosuggestions
+  # autosuggestions
   syntax-highlighting
 )
 
