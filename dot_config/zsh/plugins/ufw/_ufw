@@ -1,0 +1,149 @@
+#compdef ufw
+# ------------------------------------------------------------------------------
+# Copyright (c) 2016 Github zsh-users - https://github.com/zsh-users
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the zsh-users nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL ZSH-USERS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# ------------------------------------------------------------------------------
+# 来源：https://github.com/zsh-users/zsh-completions/blob/master/src/_ufw
+# 为 UFW 0.36.2 提供 Zsh 命令补全。
+
+_ufw_logging() {
+  local params additional second
+  second=$words[2]
+
+  if [[ -n "$second" ]]; then
+    return
+  fi
+
+  params=("on" "off")
+  additional=("low" "medium" "high" "full")
+
+  _describe -t params '开关' params
+  _describe -t additional '日志级别' additional
+}
+
+_ufw_delete() {
+  local rules complrules second
+
+  second=$words[2]
+
+  if [[ -n "$second" ]]; then
+    return
+  fi
+
+  complrules=()
+  rules=("${(f)$(ufw status | tr -s ' ' | tail -n +5 | tr -s '\n')}")
+
+  for ((i = 1; i <= ${#rules[@]}; i++)); do
+    complrules+=("$i:$rules[i]")
+  done
+
+  _describe -t complrules '规则' complrules
+}
+
+_ufw_app() {
+  local ret=1
+
+  local -a subcmds=(
+    "list:列出应用配置"
+    "info:显示应用配置详情"
+    "update:更新应用配置"
+    "default:设置默认应用策略"
+  )
+
+  _arguments \
+    "1: :{_describe '命令' subcmds}" \
+    && ret=0
+
+  return ret
+}
+
+_ufw() {
+  local curcontext="$curcontext" ret=1
+  local -a state line commands
+
+  commands=(
+    "enable:启用防火墙"
+    "disable:禁用防火墙"
+    "default:设置默认策略"
+    "logging:设置日志级别"
+    "allow:添加允许规则"
+    "deny:添加拒绝规则"
+    "reject:添加 reject 规则"
+    "limit:添加限速规则"
+    "delete:删除规则"
+    "insert:在指定位置插入规则"
+    "route:添加路由规则"
+    "reload:重新加载防火墙"
+    "reset:重置防火墙"
+    "status:显示防火墙状态"
+    "show:显示防火墙报告"
+    "version:显示版本信息"
+    "prepend:在同类规则前添加规则"
+    "app:管理应用配置"
+  )
+
+  _arguments -C -s -S -n \
+    '(- 1 *)'--version'[显示版本信息]: :->full' \
+    '(- 1 *)'{-h,--help}'[显示帮助信息]: :->full' \
+    '(- 1 *)'--dry-run'[仅显示变更，不实际修改]: :->cmds' \
+    '1:命令:->cmds' \
+    '*:: :->args' && ret=0
+
+  case "$state" in
+    (cmds)
+      _describe -t commands '命令' commands
+      ;;
+    (args)
+      local cmd
+      cmd=$words[1]
+      case "$cmd" in
+        (logging)
+          _ufw_logging && ret=0
+          ;;
+        (delete)
+          _ufw_delete && ret=0
+          ;;
+        (app)
+          _ufw_app && ret=0
+          ;;
+        (*)
+          _default && ret=0
+          ;;
+      esac
+      ;;
+  esac
+
+  return ret
+}
+
+_ufw "$@"
+
+# Local Variables:
+# mode: Shell-Script
+# sh-indentation: 2
+# indent-tabs-mode: nil
+# sh-basic-offset: 2
+# End:
+# vim: ft=zsh sw=2 ts=2 et
