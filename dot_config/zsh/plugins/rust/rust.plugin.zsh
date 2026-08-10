@@ -7,9 +7,9 @@ function _dotfiles_refresh_rustup_completion() {
 
   local temporary_file="$target.$$.tmp"
   if "${commands[rustup]}" completions zsh >| "$temporary_file"; then
-    command mv -f -- "$temporary_file" "$target"
+    command mv -f "$temporary_file" "$target"
   else
-    command rm -f -- "$temporary_file"
+    command rm -f "$temporary_file"
     return 1
   fi
 }
@@ -23,7 +23,7 @@ function _dotfiles_create_cargo_completion() {
     print -r -- '#compdef cargo'
     print -r -- 'source "$(rustc --print sysroot)/share/zsh/site-functions/_cargo"'
   } >| "$temporary_file"
-  command mv -f -- "$temporary_file" "$target"
+  command mv -f "$temporary_file" "$target"
 }
 
 _dotfiles_refresh_rustup_completion

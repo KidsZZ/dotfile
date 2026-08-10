@@ -21,9 +21,9 @@ function _dotfiles_refresh_uv_completion() {
 
   local temporary_file="$target.$$.tmp"
   if "$@" >| "$temporary_file"; then
-    command mv -f -- "$temporary_file" "$target"
+    command mv -f "$temporary_file" "$target"
   else
-    command rm -f -- "$temporary_file"
+    command rm -f "$temporary_file"
     return 1
   fi
 }
@@ -49,4 +49,3 @@ if [[ -s "$ZSH_COMPLETION_DIR/_uvx" ]]; then
 fi
 
 unfunction _dotfiles_refresh_uv_completion
-

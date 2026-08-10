@@ -38,8 +38,8 @@ typeset -ga ZSH_PLUGINS=(
 [[ -r "$ZSH_CONFIG_HOME/local-before.zsh" ]] && source "$ZSH_CONFIG_HOME/local-before.zsh"
 
 typeset -g ZSH_COMPLETION_DIR="${ZSH_COMPLETION_DIR:-$ZSH_CACHE_DIR/completions}"
-[[ -d "$ZSH_CACHE_DIR" ]] || mkdir -p -- "$ZSH_CACHE_DIR"
-[[ -d "$ZSH_COMPLETION_DIR" ]] || mkdir -p -- "$ZSH_COMPLETION_DIR"
+[[ -d "$ZSH_CACHE_DIR" ]] || mkdir -p "$ZSH_CACHE_DIR"
+[[ -d "$ZSH_COMPLETION_DIR" ]] || mkdir -p "$ZSH_COMPLETION_DIR"
 
 # 动态生成的补全文件不进入 Git，而是统一保存在可重建的缓存目录。
 fpath=("$ZSH_COMPLETION_DIR" $fpath)

@@ -121,10 +121,10 @@ fi
 
 # 删除范围严格限定为上面列出的六个目标，不触碰 HOME 中的其他内容。
 for relative_path in "${managed_targets[@]}"; do
-    command rm -rf -- "$HOME/$relative_path"
+    # HOME 已在脚本入口验证，拼接结果必定是绝对路径，不需要依赖外部命令的 `--` 支持。
+    command rm -rf "$HOME/$relative_path"
 done
 
 command tar -C "$HOME" -xzpf "$backup_file"
 
 print -- "恢复完成。请先修正 chezmoi 源状态，再重新运行 chezmoi apply。"
-

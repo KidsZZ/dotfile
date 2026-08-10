@@ -15,7 +15,8 @@ die() {
 [[ -n "${HOME:-}" && "$HOME" != "/" ]] || die "HOME 目录无效"
 command -v tar >/dev/null 2>&1 || die "缺少 tar 命令"
 
-typeset -r backup_dir="${DOTFILES_BACKUP_DIR:-$HOME/.local/state/dotfiles-backups}"
+# 转为绝对路径后再传给 BSD/GNU 工具，避免依赖并非所有 macOS 工具都接受的 `--`。
+typeset -r backup_dir="${${DOTFILES_BACKUP_DIR:-$HOME/.local/state/dotfiles-backups}:A}"
 typeset -r timestamp="$(date +%Y%m%d-%H%M%S)"
 typeset -r backup_name="dotfiles-${timestamp}.tar.gz"
 typeset -r backup_file="$backup_dir/$backup_name"
@@ -46,11 +47,11 @@ for relative_path in "${managed_targets[@]}"; do
     fi
 done
 
-command mkdir -p -- "$backup_dir"
+command mkdir -p "$backup_dir"
 [[ ! -e "$backup_file" && ! -e "$checksum_file" ]] || die "同名备份已经存在：$backup_file"
 
 if (( ${#existing_targets[@]} > 0 )); then
-    command tar -C "$HOME" -czf "$backup_file" -- "${existing_targets[@]}"
+    command tar -C "$HOME" -czf "$backup_file" "${existing_targets[@]}"
 else
     # 所有目标都不存在时仍创建一个有效的空快照，恢复时会删除 apply 新建的目标。
     command tar -C "$HOME" -czf "$backup_file" -T /dev/null
@@ -68,11 +69,11 @@ elif command -v shasum >/dev/null 2>&1; then
         command shasum -a 256 "$backup_name" > "${backup_name}.sha256"
     )
 else
-    command rm -f -- "$backup_file"
+    command rm -f "$backup_file"
     die "缺少 sha256sum 或 shasum，已删除无法校验的备份"
 fi
 
-command chmod 600 -- "$backup_file" "$checksum_file"
+command chmod 600 "$backup_file" "$checksum_file"
 
 print -- "备份完成：$backup_file"
 print -- "校验文件：$checksum_file"

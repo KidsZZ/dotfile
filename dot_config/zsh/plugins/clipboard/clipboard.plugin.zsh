@@ -3,19 +3,19 @@ function _dotfiles_detect_clipboard() {
   emulate -L zsh
 
   if [[ "$OSTYPE" == darwin* ]] && (( $+commands[pbcopy] && $+commands[pbpaste] )); then
-    function clipcopy() { command cat -- "${1:-/dev/stdin}" | command pbcopy; }
+    function clipcopy() { command cat < "${1:-/dev/stdin}" | command pbcopy; }
     function clippaste() { command pbpaste; }
   elif (( $+commands[clip.exe] && $+commands[powershell.exe] )); then
-    function clipcopy() { command cat -- "${1:-/dev/stdin}" | command clip.exe; }
+    function clipcopy() { command cat < "${1:-/dev/stdin}" | command clip.exe; }
     function clippaste() { command powershell.exe -NoProfile -Command Get-Clipboard; }
   elif [[ -n "${WAYLAND_DISPLAY-}" ]] && (( $+commands[wl-copy] && $+commands[wl-paste] )); then
-    function clipcopy() { command cat -- "${1:-/dev/stdin}" | command wl-copy &>/dev/null &|; }
+    function clipcopy() { command cat < "${1:-/dev/stdin}" | command wl-copy &>/dev/null &|; }
     function clippaste() { command wl-paste --no-newline; }
   elif [[ -n "${DISPLAY-}" ]] && (( $+commands[xsel] )); then
-    function clipcopy() { command cat -- "${1:-/dev/stdin}" | command xsel --clipboard --input; }
+    function clipcopy() { command cat < "${1:-/dev/stdin}" | command xsel --clipboard --input; }
     function clippaste() { command xsel --clipboard --output; }
   elif [[ -n "${DISPLAY-}" ]] && (( $+commands[xclip] )); then
-    function clipcopy() { command cat -- "${1:-/dev/stdin}" | command xclip -selection clipboard -in &>/dev/null &|; }
+    function clipcopy() { command cat < "${1:-/dev/stdin}" | command xclip -selection clipboard -in &>/dev/null &|; }
     function clippaste() { command xclip -selection clipboard -out; }
   elif [[ -n "${TMUX-}" ]] && (( $+commands[tmux] )); then
     function clipcopy() { command tmux load-buffer -w "${1:--}"; }
