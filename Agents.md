@@ -1,2 +1,7 @@
 - 忽略文件: 编写时需检查`.chezmoiignore`与`.gitignore`并同步更新
 - 备份脚本: 编写时需检查`scripts`文件夹中的`restore-dotfiles.zsh`与`backup-dotfiles.zsh`并同步更新
+- 编写参考：
+  - ref中的各个仓库
+  - 网络上（比如github等）的仓库
+- 兼容性：
+  - 兼容LINUX GNU规范和MacOS BSD规范
