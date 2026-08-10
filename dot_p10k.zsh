@@ -34,6 +34,11 @@
     # os_icon               # os identifier
     dir                     # current directory
     vcs                     # git status
+    # 运行环境属于项目上下文，统一放在第一行，避免依赖右侧提示符。
+    virtualenv              # Python venv/virtualenv environment
+    anaconda                # Conda environment
+    nvm                     # Node.js version managed by nvm
+    command_execution_time  # duration of the last command
     # =========================[ Line #2 ]=========================
     newline                 # \n
     prompt_char             # prompt symbol
