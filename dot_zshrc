@@ -16,6 +16,8 @@ typeset -g ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
 typeset -g ZSH_THEME="powerlevel10k"
 typeset -U path PATH fpath
 typeset -ga ZSH_PLUGINS=(
+  # brew会安装软件，先加入从而使后面的指令能扫到brew安装的软件
+  brew
   compat
   git
   ufw
