@@ -39,6 +39,7 @@ typeset -r backup_name="${backup_file:t}"
 typeset -ar managed_targets=(
     .zshrc
     .p10k.zsh
+    .config/kitty
     .config/zsh
     .local/share/powerlevel10k
     .local/share/zsh/plugins/zsh-autosuggestions
@@ -86,6 +87,8 @@ while IFS= read -r archive_entry; do
     case "$normalized_entry" in
         .zshrc | \
         .p10k.zsh | \
+        .config/kitty | \
+        .config/kitty/* | \
         .config/zsh | \
         .config/zsh/* | \
         .local/share/powerlevel10k | \
@@ -119,7 +122,7 @@ if (( auto_confirm == 0 )); then
     [[ "$reply" == [yY] ]] || die "已取消恢复"
 fi
 
-# 删除范围严格限定为上面列出的六个目标，不触碰 HOME 中的其他内容。
+# 删除范围严格限定为上面列出的受管目标，不触碰 HOME 中的其他内容。
 for relative_path in "${managed_targets[@]}"; do
     # HOME 已在脚本入口验证，拼接结果必定是绝对路径，不需要依赖外部命令的 `--` 支持。
     command rm -rf "$HOME/$relative_path"

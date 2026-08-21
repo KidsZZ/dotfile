@@ -26,6 +26,7 @@ typeset -r checksum_file="${backup_file}.sha256"
 typeset -ar managed_targets=(
     .zshrc
     .p10k.zsh
+    .config/kitty
     .config/zsh
     .local/share/powerlevel10k
     .local/share/zsh/plugins/zsh-autosuggestions
