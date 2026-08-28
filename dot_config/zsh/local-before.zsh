@@ -28,3 +28,16 @@ done
 path=("${_dotfiles_existing_bin_dirs[@]}" $path)
 # 临时数组和循环变量完成使命后立即清理，避免污染交互式 Shell。
 unset _dotfiles_bin_dir _dotfiles_existing_bin_dirs _dotfiles_local_bin_dirs
+
+snet() {
+    local DEFAULT_PROXY="http://127.0.0.1:7890"
+    local TARGET_PROXY="${CUSTOM_PROXY:-$DEFAULT_PROXY}"
+    
+    (
+        export http_proxy="$TARGET_PROXY"
+        export https_proxy="$TARGET_PROXY"
+        export ftp_proxy="$TARGET_PROXY"
+        export all_proxy="$TARGET_PROXY"
+        "$@"
+    )
+}
