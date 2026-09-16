@@ -37,6 +37,7 @@ typeset -r backup_name="${backup_file:t}"
 [[ -f "$checksum_file" ]] || die "校验文件不存在：$checksum_file"
 
 typeset -ar managed_targets=(
+    .tmux.conf
     .zshrc
     .p10k.zsh
     .config/kitty
@@ -85,6 +86,7 @@ while IFS= read -r archive_entry; do
     [[ -z "$normalized_entry" ]] && continue
 
     case "$normalized_entry" in
+        .tmux.conf | \
         .zshrc | \
         .p10k.zsh | \
         .config/kitty | \

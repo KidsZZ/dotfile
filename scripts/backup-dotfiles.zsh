@@ -22,8 +22,9 @@ typeset -r backup_name="dotfiles-${timestamp}.tar.gz"
 typeset -r backup_file="$backup_dir/$backup_name"
 typeset -r checksum_file="${backup_file}.sha256"
 
-# 这些路径覆盖仓库直接管理的 Zsh 配置，以及 exact=true 的 external 目录。
+# 这些路径覆盖仓库直接管理的配置，以及 exact=true 的 external 目录。
 typeset -ar managed_targets=(
+    .tmux.conf
     .zshrc
     .p10k.zsh
     .config/kitty
