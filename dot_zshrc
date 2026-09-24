@@ -18,6 +18,7 @@ typeset -U path PATH fpath
 typeset -ga ZSH_PLUGINS=(
   # brew会安装软件，先加入从而使后面的指令能扫到brew安装的软件
   brew
+  kitty
   compat
   git
   ufw
