@@ -1,8 +1,52 @@
-# 参考 OMZ 的 clipboard lib，按当前个人环境裁剪为常见桌面、WSL 和 tmux 后端。
+# OSC 52 由 SSH 客户端所在的终端处理，将内容写入客户端的系统剪贴板。
+function _dotfiles_clipcopy_osc52() {
+  emulate -L zsh
+
+  if (( ! $+commands[base64] )); then
+    print -u2 -- "[dotfiles] 远程复制需要 base64 命令"
+    return 1
+  fi
+
+  # 直接写入控制终端，避免重定向 stdout 时把控制序列写进文件。
+  local tty_fd encoded result
+  if ! exec {tty_fd}>/dev/tty; then
+    print -u2 -- "[dotfiles] 远程复制需要交互终端，请使用 ssh -t 分配终端"
+    return 1
+  fi
+
+  # 先完整读取并编码，输入失败时不发送序列，避免意外清空剪贴板。
+  if ! encoded=$(command base64 < "${1:-/dev/stdin}"); then
+    exec {tty_fd}>&-
+    return 1
+  fi
+  # GNU/BSD 的 base64 换行行为不同，统一移除编码结果中的换行。
+  encoded=${encoded//$'\n'/}
+  encoded=${encoded//$'\r'/}
+  print -rn -- $'\e]52;c;'"$encoded"$'\a' >&$tty_fd
+  result=$?
+  exec {tty_fd}>&-
+  return $result
+}
+
+# 参考 OMZ 的 clipboard lib，支持 SSH、常见桌面、WSL 和 tmux 后端。
 function _dotfiles_detect_clipboard() {
   emulate -L zsh
 
-  if [[ "$OSTYPE" == darwin* ]] && (( $+commands[pbcopy] && $+commands[pbpaste] )); then
+  # SSH 优先写入客户端终端，避免误用服务器的桌面剪贴板或 X11 转发。
+  if [[ -n "${SSH_CONNECTION-}${SSH_CLIENT-}${SSH_TTY-}" ]]; then
+    if [[ -n "${TMUX-}" ]] && (( $+commands[tmux] )); then
+      # 由 tmux 发送 OSC 52，同时保留其内部缓冲区供 clippaste 使用。
+      function clipcopy() { command tmux load-buffer -w "${1:--}"; }
+      function clippaste() { command tmux save-buffer -; }
+    else
+      function clipcopy() { _dotfiles_clipcopy_osc52 "$@"; }
+      # OSC 52 读取支持因终端而异，不向服务器剪贴板回退。
+      function clippaste() {
+        print -u2 -- "[dotfiles] SSH 会话不支持读取客户端剪贴板，请使用终端的粘贴快捷键"
+        return 1
+      }
+    fi
+  elif [[ "$OSTYPE" == darwin* ]] && (( $+commands[pbcopy] && $+commands[pbpaste] )); then
     function clipcopy() { command cat < "${1:-/dev/stdin}" | command pbcopy; }
     function clippaste() { command pbpaste; }
   elif (( $+commands[clip.exe] && $+commands[powershell.exe] )); then
